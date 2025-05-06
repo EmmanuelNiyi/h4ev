@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 import requests
 
-from onadata.services import get_form_submissions
+from onadata.services import get_form_submissions, get_user_forms
 
 
 class GetFormsByUsernameView(APIView):
@@ -13,13 +13,9 @@ class GetFormsByUsernameView(APIView):
     def get(self, request, username):
 
         try:
-            params = {
-                'owner': username,
-            }
-            response = requests.get('https://api.ona.io/api/v1/forms', params=params)
-            response.raise_for_status()
-            data = response.json()
-            if response.status_code == 200:
+            data, status_code = get_user_forms(username)
+
+            if status_code == 200:
                 if len(data) == 0:
                     return Response(f"error: no forms found for user {username}")
                 return Response(data, status=status.HTTP_200_OK)

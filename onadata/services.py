@@ -1,14 +1,14 @@
 import requests
 
 
-def get_user_forms(username: str) -> dict:
+def get_user_forms(username: str) -> tuple:
     params = {
         'owner': username,
     }
     response = requests.get('https://api.ona.io/api/v1/forms', params=params)
     response.raise_for_status()
     data = response.json()
-    return data
+    return data, response.status_code
 
 
 def get_form_submissions(form_id: str) -> dict:
