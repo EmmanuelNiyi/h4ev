@@ -15,8 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+
+from onadata.views import GetFormsByUsernameView, GetFormSubmissionsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
+    path('api/onadata/user/<str:username>/forms', GetFormsByUsernameView.as_view(), name='get_forms_by_username'),
+    path('api/onadata/form/<str:form_id>/', GetFormSubmissionsView.as_view(), name='get_form_submissions')
 ]
