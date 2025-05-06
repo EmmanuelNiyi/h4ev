@@ -17,11 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from accounts.views import CreateUserView, GetAllUsersView, UserLoginView
 from onadata.views import GetFormsByUsernameView, GetFormSubmissionsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
+
+    path('api/accounts/create/user/', CreateUserView.as_view(), name='create_user'),
+    path('api/accounts/login/', UserLoginView.as_view(), name='create_user'),
+    path('api/accounts/users/get/all/', GetAllUsersView.as_view(), name='create_user'),
+
     path('api/onadata/user/<str:username>/forms', GetFormsByUsernameView.as_view(), name='get_forms_by_username'),
-    path('api/onadata/form/<str:form_id>/', GetFormSubmissionsView.as_view(), name='get_form_submissions')
+    path('api/onadata/form/<str:form_id>/', GetFormSubmissionsView.as_view(), name='get_form_submissions'),
+
+
 ]
