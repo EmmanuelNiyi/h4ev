@@ -1,4 +1,7 @@
+import json
+import os
 import traceback
+from datetime import datetime
 
 from django.contrib.auth import get_user_model, authenticate
 from django.shortcuts import render
@@ -10,7 +13,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts import exceptions, services, serializers
 from accounts.serializers import UserSerializer
-
+from accounts.services import LoggingAPIView
+from h4ev import settings
 
 User = get_user_model()
 
@@ -93,7 +97,7 @@ class UserLoginView(APIView):
 
     def post(self, request, *args, **kwargs):
         # # Retrieve and sanitize username (email) and password from request data
-        unsafe_username = request.data.get("email", "")
+        unsafe_username = request.data.get("username", "")
         unsafe_password = request.data.get("password", "")
         #
         # sanitized_username = sanitization_utils.strip_xss(unsafe_username)
@@ -132,7 +136,7 @@ class UserLoginView(APIView):
             )
 
 
-class GetAllUsersView(APIView):
+class GetAllUsersView(LoggingAPIView):
     """Get all users view"""
 
     # logger.info("Retrieving all users")
@@ -146,64 +150,30 @@ class GetAllUsersView(APIView):
         return Response(serializer.data, status=200)
 
 
-# class RetrieveUpdateDeleteUserView(APIView):
-#     serializer_class = accounts_serializers.UserResponseSerializer
-#     permission_classes = [AllowAny]  # Modify to stricter permissions if necessary
-#
-#     def get(self, request, user_id):
-#         """Retrieve a user by ID"""
-#         logger.info(f"retrieving user {user_id} details")
-#         try:
-#             user = User.objects.get(id=user_id)
-#         except User.DoesNotExist:
-#             return Response({"error": f"user {user_id} not found"}, status=404)
-#
-#         serializer = accounts_serializers.UserResponseSerializer(user)
-#         return Response(serializer.data, status=200)
-#
-#     def put(self, request, user_id):
-#         """Update a user by id"""
-#         logger.info(f"updating user {user_id} details")
-#         try:
-#             user = User.objects.get(id=user_id)
-#         except User.DoesNotExist:
-#             return Response({"error": f"user {user_id} not found"}, status=404)
-#
-#         # unsafe_user_id = request.data.get("unsafe_user_id", "")
-#         unsafe_first_name = request.data.get("first_name", "")
-#         unsafe_last_name = request.data.get("last_name", "")
-#         unsafe_role_id = request.data.get("role", "")
-#
-#         # Sanitize the input data
-#         # sanitized_user_id = sanitization_utils.strip_xss(unsafe_user_id)
-#         sanitized_first_name = sanitization_utils.strip_xss(unsafe_first_name)
-#         sanitized_last_name = sanitization_utils.strip_xss(unsafe_last_name)
-#         sanitized_role_id = sanitization_utils.strip_xss(unsafe_role_id)
-#
-#         sanitized_data = {
-#             # "id": sanitized_user_id,
-#             "first_name": sanitized_first_name,
-#             "last_name": sanitized_last_name,
-#             "role": sanitized_role_id,
-#         }
-#
-#         serializer = accounts_serializers.UserSerializer(
-#             user, data=sanitized_data, partial=True
-#         )
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=200)
-#         return Response(serializer.errors, status=400)
-#
-#     def delete(self, request, user_id):
-#         """Delete a user by id"""
-#         logger.info(f"deleting user {user_id}")
-#         try:
-#             user = User.objects.get(id=user_id)
-#         except User.DoesNotExist:
-#             return Response({"error": f"user {user_id} not found"}, status=404)
-#
-#         user.delete()
-#         return Response(
-#             {"message": f"user with id {user_id} deleted successfully"}, status=204
-#         )
+class RetrieveUpdateDeleteUserView(LoggingAPIView):
+    serializer_class = serializers.UserReadSerializer
+    permission_classes = [AllowAny]  # Modify to stricter permissions if necessary
+
+    def get(self, request, user_id):
+        """Retrieve a user by ID"""
+        # logger.info(f"retrieving user {user_id} details")
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": f"user {user_id} not found"}, status=404)
+
+        serializer = serializers.UserReadSerializer(user)
+        return Response(serializer.data, status=200)
+
+    def delete(self, request, user_id):
+        """Delete a user by id"""
+        # logger.info(f"deleting user {user_id}")
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": f"user {user_id} not found"}, status=404)
+
+        user.delete()
+        return Response(
+            {"message": f"user with id {user_id} deleted successfully"}, status=204
+        )

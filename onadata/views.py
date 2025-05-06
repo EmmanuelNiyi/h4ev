@@ -1,14 +1,15 @@
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 import requests
 
+from accounts.services import LoggingAPIView
 from onadata.services import get_form_submissions, get_user_forms
 
 
-class GetFormsByUsernameView(APIView):
-    permission_classes = [AllowAny]
+class GetFormsByUsernameView(LoggingAPIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, username):
 
@@ -28,8 +29,8 @@ class GetFormsByUsernameView(APIView):
             )
 
 
-class GetFormSubmissionsView(APIView):
-    permission_classes = [AllowAny]
+class GetFormSubmissionsView(LoggingAPIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, form_id):
         try:

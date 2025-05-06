@@ -28,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
 class LoginSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ["email", "password"]
+        fields = ["username", "password"]
         # extra_kwargs = {'password': {'write_only': True}}
 
 
@@ -41,4 +41,4 @@ class LoginSerializer(ModelSerializer):
 class UserReadSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        exclude = ["password", "groups", "is_staff", "user_permissions"]
