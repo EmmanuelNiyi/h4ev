@@ -1,5 +1,7 @@
+import hashlib
 import json
 import os
+import time
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
@@ -83,3 +85,31 @@ class LoggingAPIView(APIView):
             f.write(json.dumps(log_entry) + "\n")
 
         return response
+
+
+def generate_cache_key(user, url_params=None, time_window=None):
+    key_parts = []
+
+    # Include user-specific information
+    if user:
+        key_parts.append(f"user-{user.id}")
+        if hasattr(user, 'role'):
+            key_parts.append(f"role-{user.role}")
+
+    # Include URL parameters (e.g., filters, pagination)
+    if url_params:
+        sorted_items = sorted(url_params.items())
+        param_str = "&".join(f"{k}={v}" for k, v in sorted_items)
+        key_parts.append(f"params-{param_str}")
+
+    # Include time window for periodic cache busting (e.g., hourly)
+    if time_window:
+        current_window = int(time.time() // time_window)
+        key_parts.append(f"time-{current_window}")
+
+    # Create a unique cache key by hashing the parts
+    raw_key = ":".join(key_parts)
+    hashed_key = hashlib.md5(raw_key.encode()).hexdigest()
+    print(hashed_key)
+
+    return f"cache:{hashed_key}"
