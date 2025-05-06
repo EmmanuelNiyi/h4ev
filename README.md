@@ -101,7 +101,7 @@ The **accounts** app manages users and secures API endpoints via JWT tokens.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ehealth4everyone.git
+git clone https://github.com/EmmanuelNiyi/h4ev.git
 cd ehealth4everyone
 
 # Build and start containers - migrations are applied automatically
@@ -110,7 +110,7 @@ docker-compose up --build -d
 
 After containers are up:
 
-* The web API will be available at `http://localhost:8000/`.
+* The web API will be available at `http://localhost:8006/`.
 * Onadata endpoints: `/api/onadata/...`
 * Accounts endpoints: `/api/accounts/...`
 
